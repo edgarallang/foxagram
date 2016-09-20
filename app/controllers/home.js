@@ -8,7 +8,6 @@ module.exports = function (app) {
 
 router.get('/', function (req, res, next) {
   db.Article.findAll().then(function (articles) {
-    debugger
     res.render('index', {
       title: 'Generator-Express MVC',
       articles: articles[0].title
@@ -22,6 +21,6 @@ router.get('/users/:userId', function (req, res, next) {
       title: 'Edgar Website ' + req.params.userId,
       articles: articles[0].url
     });
-    res.json({ user: 'EdgarAllanGlez' });
+    //  res.json({ user: 'EdgarAllanGlez' });
   });
 });
