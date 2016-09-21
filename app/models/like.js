@@ -10,7 +10,7 @@ module.exports = function (sequelize, DataTypes) {
     classMethods: {
       associate: function (models) {
         // example on how to add relations
-        //Like.belongsTo(models.User);
+        Like.belongsTo(models.User);
       }
     }
   });

@@ -8,7 +8,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     classMethods: {
       associate: function(models){
-
+        User.hasMany(models.Comment)
       }
     }
 
@@ -16,5 +16,3 @@ module.exports = function (sequelize, DataTypes) {
 
   return User;
 };
-
-
