@@ -43,7 +43,7 @@ router.post('/auth/login', function(req, res){
     where: { facebook_key: req.body.facebook_key }
   }).then(function (user){
     if (!user) {
-      return res.status(401).send({message: 'Invalid facebook id'})
+      return res.status(401).send({message: 'Invalid facebook id'});
     }else{
       res.json({token: createJWT(user)});
     }
@@ -59,7 +59,7 @@ function createJWT(user) {
   var payload = {
     sub: user.id,
     iat: moment().unix(),
-    exp: moment().add(14, 'days').unix()
+    exp: moment().add(45, 'days').unix()
   };
   return jwt.encode(payload, 'coldnessbitch');
 }
