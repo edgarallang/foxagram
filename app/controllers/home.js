@@ -15,12 +15,16 @@ router.get('/', function (req, res, next) {
   });
 });
 
+router.post('/login', function(req, res){
+
+});
+
 router.get('/users/:userId', function (req, res, next) {
-  db.Article.findAll().then(function (articles) {
-    res.render('index', {
-      title: 'Edgar Website ' + req.params.userId,
-      articles: articles[0].url
-    });
-    //  res.json({ user: 'EdgarAllanGlez' });
-  });
+  db.User.findAll({
+    where: {
+      id: req.params.userId
+    }
+  }).then(function (user){
+      res.json({ user });
+  })
 });
