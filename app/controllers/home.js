@@ -21,14 +21,27 @@ router.get('/', function (req, res, next) {
  | Log in
  |--------------------------------------------------------------------------
  */
-router.get('/auth/login/:userId', function(req, res) {
+/*router.get('/auth/login/:userId', function(req, res) {
+
   db.User.findOne({ facebook_key: req.params.userId }, function(err, user) {
     if (!user) {
+      res.json({token:'hola'});
       return res.status(401).send({ message: 'Invalid facebook id' });
     }else{
-      res.send({ token: createJWT(user) });
+      user_jwt = createJWT(user);
+      res.json({ token: user_jwt });
     }
+
   });
+});*/
+
+router.get('/auth/login/:userId', function(req, res){
+  db.User.findOne({
+    where: { facebook_key: req.params.userId }
+  }).then(function (user){
+    res.json({token: createJWT(user)});
+  });
+
 });
 
 router.get('/users/:userId', function (req, res, next) {
@@ -37,8 +50,8 @@ router.get('/users/:userId', function (req, res, next) {
       id: req.params.userId
     }
   }).then(function (user){
-      res.json({ user });
-  })
+      res.json({ user: "EdgarAllanGlez" });
+  });
 });
 
 
@@ -49,7 +62,7 @@ router.get('/users/:userId', function (req, res, next) {
  */
 function createJWT(user) {
   var payload = {
-    sub: user._id,
+    sub: user.id,
     iat: moment().unix(),
     exp: moment().add(14, 'days').unix()
   };
