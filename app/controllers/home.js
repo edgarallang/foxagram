@@ -38,24 +38,17 @@ router.get('/', function (req, res, next) {
   });
 });*/
 
-router.get('/auth/login/:userId', function(req, res){
+router.post('/auth/login', function(req, res){
   db.User.findOne({
-    where: { facebook_key: req.params.userId }
+    where: { facebook_key: req.body.facebook_key }
   }).then(function (user){
-    res.json({token: createJWT(user)});
-  });
-});
-
-router.get('/users/:userId', function (req, res, next) {
-  db.User.findAll({
-    where: {
-      id: req.params.userId
+    if (!user) {
+      return res.status(401).send({message: 'Invalid facebook id'})
+    }else{
+      res.json({token: createJWT(user)});
     }
-  }).then(function (user){
-      res.json({ user: "EdgarAllanGlez" });
   });
 });
-
 
 /*
  |--------------------------------------------------------------------------
@@ -68,5 +61,5 @@ function createJWT(user) {
     iat: moment().unix(),
     exp: moment().add(14, 'days').unix()
   };
-  return jwt.encode(payload, config.TOKEN_SECRET);
+  return jwt.encode(payload, 'coldnessbitch');
 }
