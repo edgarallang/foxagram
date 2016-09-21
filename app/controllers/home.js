@@ -2,6 +2,9 @@
 var express = require('express'),
   router = express.Router(),
   db = require('../models');
+  moment = require('moment');
+  jwt = require('jwt-simple');
+
 
 module.exports = function (app) {
   app.use('/', router);
