@@ -41,7 +41,6 @@ router.get('/auth/login/:userId', function(req, res){
   }).then(function (user){
     res.json({token: createJWT(user)});
   });
-
 });
 
 router.get('/users/:userId', function (req, res, next) {
