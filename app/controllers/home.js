@@ -20,7 +20,7 @@ router.get('/', function (req, res, next) {
  | Log in
  |--------------------------------------------------------------------------
  */
-app.post('/auth/login', function(req, res) {
+router.post('/auth/login', function(req, res) {
   User.findOne({ email: req.body.email }, '+password', function(err, user) {
     if (!user) {
       return res.status(401).send({ message: 'Invalid email and/or password' });
@@ -40,6 +40,6 @@ router.get('/users/:userId', function (req, res, next) {
       id: req.params.userId
     }
   }).then(function (user){
-      res.json({ user });
-  })
+      res.json({ user: "EdgarAllanGlez" });
+  });
 });
