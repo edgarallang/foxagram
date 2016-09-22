@@ -10,6 +10,8 @@ var methodOverride = require('method-override');
 var exphbs  = require('express-handlebars');
 var jwt  = require('jwt-simple');
 var moment = require('moment');
+var multer  =   require('multer');
+moment().format();
 
 module.exports = function(app, config) {
   var env = process.env.NODE_ENV || 'development';
