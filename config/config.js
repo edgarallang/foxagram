@@ -9,7 +9,8 @@ var config = {
       name: 'foxagram'
     },
     port: process.env.PORT || 3000,
-    db: 'postgresql://postgres:doprocks@45.55.7.118:5432/foxagramdb'
+    db: 'postgresql://postgres:doprocks@45.55.7.118:5432/foxagramdb',
+    TOKEN_SECRET: 'coldnessbitch'
   },
 
   test: {

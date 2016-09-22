@@ -10,6 +10,20 @@ module.exports = function (app) {
   app.use('/', router);
 };
 
+/*
+ |--------------------------------------------------------------------------
+ | Generate JSON Web Token
+ |--------------------------------------------------------------------------
+ */
+function createJWT(user) {
+  var payload = {
+    sub: user.id,
+    iat: moment().unix(),
+    exp: moment().add(14, 'days').unix()
+  };
+  return jwt.encode(payload, 'coldnessbitch');
+}
+
 router.get('/', function (req, res, next) {
   db.Article.findAll().then(function (articles) {
     res.render('index', {
@@ -43,23 +57,9 @@ router.post('/auth/login', function(req, res){
     where: { facebook_key: req.body.facebook_key }
   }).then(function (user){
     if (!user) {
-      return res.status(401).send({message: 'Invalid facebook id'})
+      return res.status(401).send({message: 'Invalid facebook id'});
     }else{
       res.json({token: createJWT(user)});
     }
   });
 });
-
-/*
- |--------------------------------------------------------------------------
- | Generate JSON Web Token
- |--------------------------------------------------------------------------
- */
-function createJWT(user) {
-  var payload = {
-    sub: user.id,
-    iat: moment().unix(),
-    exp: moment().add(14, 'days').unix()
-  };
-  return jwt.encode(payload, 'coldnessbitch');
-}
