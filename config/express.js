@@ -11,6 +11,8 @@ var exphbs  = require('express-handlebars');
 var jwt  = require('jwt-simple');
 var moment = require('moment');
 var multer  =   require('multer');
+var mkdirp = require('mkdirp');
+
 moment().format();
 
 module.exports = function(app, config) {
