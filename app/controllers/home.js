@@ -63,16 +63,3 @@ router.post('/auth/login', function(req, res){
     }
   });
 });
-/*
- |--------------------------------------------------------------------------
- | Generate JSON Web Token
- |--------------------------------------------------------------------------
- */
-function createJWT(user) {
-  var payload = {
-    sub: user.id,
-    iat: moment().unix(),
-    exp: moment().add(45, 'days').unix()
-  };
-  return jwt.encode(payload, 'coldnessbitch');
-}
