@@ -22,6 +22,7 @@ router.get('/', function (req, res, next) {
  | Generate JSON Web Token
  |--------------------------------------------------------------------------
  */
+ 
 function createJWT(user) {
   var payload = {
     sub: user.id,
@@ -30,6 +31,7 @@ function createJWT(user) {
   };
   return jwt.encode(payload, 'coldnessbitch');
 }
+
 /*
  |--------------------------------------------------------------------------
  | Decode JSON Web Token
