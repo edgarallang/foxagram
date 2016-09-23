@@ -15,7 +15,7 @@ var express = require('express'),
 	    callback(null, Date.now() + '.png');
 	  }
 	}),
-  upload = multer({ storage : storage, dest: 'photos/1'}).single('userPhoto');
+  upload = multer({ storage : storage, dest: 'photos/'}).single('userPhoto');
   
 
 
