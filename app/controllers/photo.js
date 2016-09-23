@@ -2,23 +2,8 @@ var express = require('express'),
   router = express.Router(),
   db = require('../models'),
   multer = require('multer'),
-  mkdirp = require('mkdirp'),
-  storage = multer.diskStorage({
-	  destination: function (req, file, callback) {
-      mkdirp('./photos/2', function (err) {
-        if (!err){
-          callback(null, './photos/2');
-        }
-      });
-	  },
-	  filename: function (req, file, callback) {
-	    callback(null, Date.now() + '.png');
-	  }
-	}),
-  upload = multer({ storage : storage, dest: 'photos/'}).single('userPhoto');
+  mkdirp = require('mkdirp');
   
-
-
 
 module.exports = function (app) {
   app.use('/photo', router);
@@ -57,13 +42,27 @@ function ensureAuthenticated(req, res, next) {
   next();
 }
 
-router.post('/upload', ensureAuthenticated,function (req, res, next) {
-	upload(req,res,function(err) {
+router.post('/upload', ensureAuthenticated, function (req, res, next) {
+  var storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+      mkdirp('./photos/' + req.user_id, function (err) {
+        if (!err){
+          callback(null, './photos/' + req.user_id);
+        }
+      });
+    },
+    filename: function (req, file, callback) {
+      callback(null, Date.now() + '.png');
+    }
+  });
+  var upload = multer({ storage : storage, dest: 'photos/'}).single('userPhoto');
+
+	upload(req ,res , function(err) {
         if(err) {
           return res.json("Error uploading photo.");
         }else{
           db.Photo.create({
-            user_id: 5,
+            user_id: req.user_id,
             title: req.body.title,
             date: Date.now(),
             file_name: req.file.filename
