@@ -58,4 +58,3 @@ router.post('/auth/login', function(req, res){
     }
   });
 });
-
