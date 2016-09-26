@@ -4,6 +4,7 @@ var express = require('express'),
   db = require('../models');
   moment = require('moment');
   jwt = require('jwt-simple');
+  config = require('../../config/config');
 
 
 module.exports = function (app) {
@@ -21,15 +22,15 @@ function createJWT(user) {
     iat: moment().unix(),
     exp: moment().add(14, 'days').unix()
   };
-  return jwt.encode(payload, 'coldnessbitch');
+  return jwt.encode(payload, config.TOKEN_SECRET);
 }
 
 router.get('/', function (req, res, next) {
-  db.Article.findAll().then(function (articles) {
-    res.render('index', {
-      title: 'Generator-Express MVC',
-      articles: articles[0].title
-    });
+  db.Photo.findAndCountAll({
+    where: { user_id: 5, 'user.user_id': 3 },
+    include: [db.User, {model: db.User, as: 'user'}]
+  }).then(function (photos) {
+    res.json(photos);
   });
 });
 
@@ -38,19 +39,6 @@ router.get('/', function (req, res, next) {
  | Log in
  |--------------------------------------------------------------------------
  */
-/*router.get('/auth/login/:userId', function(req, res) {
-
-  db.User.findOne({ facebook_key: req.params.userId }, function(err, user) {
-    if (!user) {
-      res.json({token:'hola'});
-      return res.status(401).send({ message: 'Invalid facebook id' });
-    }else{
-      user_jwt = createJWT(user);
-      res.json({ token: user_jwt });
-    }
-
-  });
-});*/
 
 router.post('/auth/login', function(req, res){
   db.User.findOne({
