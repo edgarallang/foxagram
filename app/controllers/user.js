@@ -22,7 +22,7 @@ router.get('/', function (req, res, next) {
  | Generate JSON Web Token
  |--------------------------------------------------------------------------
  */
- 
+
 function createJWT(user) {
   var payload = {
     sub: user.id,
@@ -41,7 +41,7 @@ function ensureAuthenticated(req, res, next) {
   if (!req.header('Authorization')) {
     return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
   }
-  var token = req.header('Authorization').split(' ')[1];
+  var token = req.header('Authorization').split(' ')[0];
   var payload = null;
   try { payload = jwt.decode(token, config.TOKEN_SECRET); }
   catch (err) { return res.status(401).send({ message: err.message }); }
