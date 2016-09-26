@@ -58,7 +58,3 @@ router.post('/auth/login', function(req, res){
     }
   });
 });
-facebook_key: DataTypes.STRING,
-    username: DataTypes.STRING,
-    names: DataTypes.STRING,
-    surnames: DataTypes.STRING
