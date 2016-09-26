@@ -45,9 +45,20 @@ router.post('/auth/login', function(req, res){
     where: { facebook_key: req.body.facebook_key }
   }).then(function (user){
     if (!user) {
-      return res.status(401).send({message: 'Invalid facebook id'});
+      db.User.create({
+          facebook_key: req.body.facebook_key,
+          username: req.body.email,
+          names: req.body.names,
+          surnames: req.body.surnames
+        }).then(function (new_user){
+          res.json({token:  createJWT(new_user) });
+        });
     }else{
       res.json({token: createJWT(user)});
     }
   });
 });
+facebook_key: DataTypes.STRING,
+    username: DataTypes.STRING,
+    names: DataTypes.STRING,
+    surnames: DataTypes.STRING
