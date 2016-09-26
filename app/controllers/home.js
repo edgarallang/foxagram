@@ -25,14 +25,27 @@ function createJWT(user) {
   return jwt.encode(payload, config.TOKEN_SECRET);
 }
 
-router.get('/', function (req, res, next) {
-  db.Photo.findAndCountAll({
-    where: { user_id: 5, 'user.user_id': 3 },
-    include: [db.User, {model: db.User, as: 'user'}]
-  }).then(function (photos) {
-    res.json(photos);
-  });
-});
+/*
+ |--------------------------------------------------------------------------
+ | Decode JSON Web Token
+ |--------------------------------------------------------------------------
+ */
+function ensureAuthenticated(req, res, next) {
+  if (!req.header('Authorization')) {
+    return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
+  }
+  var token = req.header('Authorization').split(' ')[0];
+  var payload = null;
+  try { payload = jwt.decode(token, config.TOKEN_SECRET); }
+  catch (err) { return res.status(401).send({ message: err.message }); }
+
+  if (payload.exp <= moment().unix()) {
+     return res.status(401).send({ message: 'Token has expired' });
+  }
+  req.user_id = payload.sub;
+  next();
+}
+
 
 /*
  |--------------------------------------------------------------------------
@@ -56,5 +69,24 @@ router.post('/auth/login', function(req, res){
     }else{
       res.json({token: createJWT(user)});
     }
+  });
+});
+/*
+ |--------------------------------------------------------------------------
+ | Home newsfeed API
+ |--------------------------------------------------------------------------
+ */
+
+router.get('/', ensureAuthenticated, function (req, res, next) {
+  db.Photo.findAndCountAll({
+    include: [{ model: db.User,
+                required: true,
+                include: [{ model: db.Follower,
+                            required: true,
+                            where: { follower_id: req.user_id }
+                          }]
+             }]
+  }).then(function (photos) {
+    res.json(photos);
   });
 });

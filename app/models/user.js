@@ -8,8 +8,9 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     classMethods: {
       associate: function(models){
-        User.hasMany(models.Photo, { foreign_key: 'id', target: 'user_id' });
-        User.hasMany(models.Follower);
+        User.belongsToMany(models.Photo, { through: 'photo_user', foreignKey: 'id', otherKey: 'user_id' });
+        User.belongsToMany(models.Follower, { through: 'follower_user', foreignKey: 'id', otherKey: 'user_id' });
+        User.belongsToMany(models.Follower, { through: 'follower_user', foreignKey: 'id', otherKey: 'follower_id' });
       }
     }
 

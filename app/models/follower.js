@@ -10,8 +10,8 @@ module.exports = function (sequelize, DataTypes) {
     classMethods: {
       associate: function (models) {
         // example on how to add relations
-        Follower.belongsTo(models.User, {foreign_key: 'user_id'});
-        Follower.belongsTo(models.User, {foreign_key: 'follower_id'});
+        Follower.belongsTo(models.User, { through: 'follower_user', foreignKey: 'user_id', otherKey: 'id'});
+        Follower.belongsTo(models.User, { through: 'follower_user', foreignKey: 'follower_id', otherKey: 'id'});
       }
     }
   });
