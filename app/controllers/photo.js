@@ -30,7 +30,7 @@ function ensureAuthenticated(req, res, next) {
   if (!req.header('Authorization')) {
     return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
   }
-  var token = req.header('Authorization').split(' ')[1];
+  var token = req.header('Authorization').split(' ')[0];
   var payload = null;
   try { payload = jwt.decode(token, config.TOKEN_SECRET); }
   catch (err) { return res.status(401).send({ message: err.message }); }
@@ -42,24 +42,28 @@ function ensureAuthenticated(req, res, next) {
   next();
 }
 
-router.post('/upload', ensureAuthenticated, function (req, res, next) {
+router.post('/upload', ensureAuthenticated,function (req, res, next) {
   var storage = multer.diskStorage({
     destination: function (req, file, callback) {
       mkdirp('./photos/' + req.user_id, function (err) {
         if (!err){
           callback(null, './photos/' + req.user_id);
+        }else{
+          console.log("ERROR");
+
         }
       });
     },
     filename: function (req, file, callback) {
-      callback(null, Date.now() + '.png');
+      callback(null, Date.now() + '.jpeg');
     }
   });
-  var upload = multer({ storage : storage, dest: 'photos/'}).single('userPhoto');
+
+  var upload = multer({ storage : storage, dest: 'photos/' }).single('photo');
 
 	upload(req ,res , function(err) {
         if(err) {
-          return res.json("Error uploading photo.");
+          res.json({message: 'Error uploading photo.'});
         }else{
           db.Photo.create({
             user_id: req.user_id,

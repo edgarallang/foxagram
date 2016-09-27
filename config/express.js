@@ -13,6 +13,7 @@ var moment = require('moment');
 var multer  =   require('multer');
 var mkdirp = require('mkdirp');
 
+
 module.exports = function(app, config) {
   var env = process.env.NODE_ENV || 'development';
   app.locals.ENV = env;
@@ -30,7 +31,7 @@ module.exports = function(app, config) {
   app.use(logger('dev'));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({
-    extended: true
+    extended: true, limit: '50mb'
   }));
   app.use(cookieParser());
   app.use(compress());
