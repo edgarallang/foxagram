@@ -60,7 +60,7 @@ router.post('/auth/login', function(req, res){
     if (!user) {
       db.User.create({
           facebook_key: req.body.facebook_key,
-          username: req.body.email,
+          email: req.body.email,
           names: req.body.names,
           surnames: req.body.surnames
         }).then(function (new_user){
