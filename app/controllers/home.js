@@ -16,6 +16,7 @@ module.exports = function (app) {
  | Generate JSON Web Token
  |--------------------------------------------------------------------------
  */
+
 function createJWT(user) {
   var payload = {
     sub: user.id,
@@ -30,6 +31,7 @@ function createJWT(user) {
  | Decode JSON Web Token
  |--------------------------------------------------------------------------
  */
+
 function ensureAuthenticated(req, res, next) {
   if (!req.header('Authorization')) {
     return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
@@ -46,7 +48,6 @@ function ensureAuthenticated(req, res, next) {
   next();
 }
 
-
 /*
  |--------------------------------------------------------------------------
  | Log in
@@ -62,7 +63,8 @@ router.post('/auth/login', function(req, res){
           facebook_key: req.body.facebook_key,
           email: req.body.email,
           names: req.body.names,
-          surnames: req.body.surnames
+          surnames: req.body.surnames,
+          user_image: req.body.user_image
         }).then(function (new_user){
           res.json({token:  createJWT(new_user) });
         });
@@ -71,6 +73,7 @@ router.post('/auth/login', function(req, res){
     }
   });
 });
+
 /*
  |--------------------------------------------------------------------------
  | Home newsfeed API
@@ -78,15 +81,28 @@ router.post('/auth/login', function(req, res){
  */
 
 router.get('/', ensureAuthenticated, function (req, res, next) {
-  db.Photo.findAndCountAll({
-    include: [{ model: db.User,
-                required: true,
-                include: [{ model: db.Follower,
-                            required: true,
-                            where: { follower_id: req.user_id }
-                          }]
-             }]
-  }).then(function (photos) {
-    res.json(photos);
+  // db.Photo.findAll({
+  //   include: [{ model: db.User,
+  //               required: true,
+  //               where: {id: req.user_id },
+  //               include: [{ model: db.Follower,
+  //                           required: false
+  //                           // where: [{ follower_id: req.user_id }]
+  //                         }]
+  //            }]
+  // }).then(function (photos) {
+  //   res.json(photos);
+  // });
+  var query = 'SELECT * FROM "Photos" AS p ' +
+                'INNER JOIN "Followers" AS f ON p.user_id = f.user_id ' +
+                'INNER JOIN "Users" AS u ON u.id = f.user_id ' +
+                'WHERE follower_id = :user_id ';
+
+  db.sequelize.query(query, { replacements: { user_id: req.user_id },
+                              type: db.sequelize.QueryTypes.SELECT
+                            })
+  .then(function(users) {
+    res.json(users);
+    // We don't need spread here, since only the results will be returned for select queries
   });
 });

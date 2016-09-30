@@ -4,7 +4,8 @@ module.exports = function (sequelize, DataTypes) {
     facebook_key: DataTypes.STRING,
     email: DataTypes.STRING,
     names: DataTypes.STRING,
-    surnames: DataTypes.STRING
+    surnames: DataTypes.STRING,
+    user_image: DataTypes.STRING
   }, {
     classMethods: {
       associate: function(models){
@@ -13,7 +14,6 @@ module.exports = function (sequelize, DataTypes) {
         User.belongsToMany(models.Follower, { through: 'follower_user', foreignKey: 'id', otherKey: 'follower_id' });
       }
     }
-
   });
 
   return User;
