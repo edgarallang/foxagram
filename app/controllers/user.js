@@ -1,8 +1,10 @@
 var express = require('express'),
   router = express.Router(),
-  db = require('../models');
-  moment = require('moment');
-  jwt = require('jwt-simple');
+  db = require('../models'),
+  moment = require('moment'),
+  jwt = require('jwt-simple'),
+  sequelize = require('sequelize');
+
 var config = require('../../config/config');
 
 module.exports = function (app) {
@@ -75,5 +77,21 @@ router.post('/:userId/follow', ensureAuthenticated, function(req, res) {
         plain: true
       }));
       console.log(created);
+  });
+});
+
+router.get('/get/profile', ensureAuthenticated, function(req, res){
+  db.Photo.findAll({
+    where: { user_id: req.user_id }
+  }).then( function (photos){
+    db.Follower.findAll({
+      attributes: [
+              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."follower_id" = ' + req.user_id +')'), 'following'],
+              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."user_id" = '+ req.user_id +')'), 'followers']
+          ],
+      where: { user_id: req.user_id }
+    }).then( function (profile){
+      res.json({ profile: profile ,photos: photos});
+    });
   });
 });
