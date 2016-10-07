@@ -93,7 +93,9 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
   // }).then(function (photos) {
   //   res.json(photos);
   // });
-  var query = 'SELECT * FROM "Photos" AS p ' +
+  var query = 'SELECT p.user_id, names, user_image, file_name, title, date,' +
+                      'p.id as "photo_id"' +
+                'FROM "Photos" AS p ' +
                 'INNER JOIN "Followers" AS f ON p.user_id = f.user_id ' +
                 'INNER JOIN "Users" AS u ON u.id = f.user_id ' +
                 'WHERE follower_id = :user_id ';
