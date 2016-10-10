@@ -54,7 +54,7 @@ function ensureAuthenticated(req, res, next) {
  |--------------------------------------------------------------------------
  */
 
-router.post('/auth/login', function(req, res){
+router.post('/auth/login', function(req, res) {
   db.User.findOne({
     where: { facebook_key: req.body.facebook_key }
   }).then(function (user){
@@ -66,10 +66,12 @@ router.post('/auth/login', function(req, res){
           surnames: req.body.surnames,
           user_image: req.body.user_image
         }).then(function (new_user){
-          res.json({token:  createJWT(new_user) });
+          res.json({ token: createJWT(new_user),
+                     user: new_user });
         });
-    }else{
-      res.json({token: createJWT(user)});
+    } else {
+      res.json({ token: createJWT(user),
+                 user: user });
     }
   });
 });
@@ -98,7 +100,7 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
                 'FROM "Photos" AS p ' +
                 'INNER JOIN "Followers" AS f ON p.user_id = f.user_id ' +
                 'INNER JOIN "Users" AS u ON u.id = f.user_id ' +
-                'WHERE follower_id = :user_id ';
+                'WHERE follower_id = :user_id ORDER BY date DESC';
 
   db.sequelize.query(query, { replacements: { user_id: req.user_id },
                               type: db.sequelize.QueryTypes.SELECT

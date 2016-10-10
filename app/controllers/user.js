@@ -91,7 +91,22 @@ router.get('/get/profile', ensureAuthenticated, function(req, res){
           ],
       where: { user_id: req.user_id }
     }).then( function (profile){
-      res.json({ profile: profile ,photos: photos});
+      res.json({ profile: profile, photos: photos });
     });
   });
+});
+
+router.get('/search/:text', ensureAuthenticated, function(req, res, next) {
+  var query = 'SELECT DISTINCT * FROM "Users" ' +
+                'WHERE "Users".names ILIKE' + '%%:text%%' +
+                  'OR "Users".surnames ILIKE' + '%%:text%%';
+
+  db.sequelize.query(query, { replacements: { text: req.params.text },
+                              type: db.sequelize.QueryTypes.SELECT
+                            })
+  .then(function(users) {
+    res.json(users);
+    // We don't need spread here, since only the results will be returned for select queries
+  });
+
 });

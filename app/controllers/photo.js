@@ -95,7 +95,7 @@ router.get('/:photoId/comment/get', ensureAuthenticated, function (req, res, nex
                    required: true
               }]
   }).then(function (comments) {
-    res.json({ data: comments});
+    res.json({ data: comments });
   });
 });
 
@@ -105,6 +105,6 @@ router.post('/comment/new', ensureAuthenticated, function (req, res, next) {
     photo_id: req.body.photo_id,
     comment_body: req.body.comment_body
   }).then(function (comment) {
-    res.json({ message: 'success'});
+    res.json(comment);
   });
 });
