@@ -98,10 +98,11 @@ router.get('/get/profile', ensureAuthenticated, function(req, res){
 
 router.get('/search/:text', ensureAuthenticated, function(req, res, next) {
   var query = 'SELECT DISTINCT * FROM "Users" ' +
-                'WHERE "Users".names ILIKE' + '%%:text%%' +
-                  'OR "Users".surnames ILIKE' + '%%:text%%';
+                'WHERE "Users".names ILIKE :text ' +
+                  'OR "Users".surnames ILIKE :text';
 
-  db.sequelize.query(query, { replacements: { text: req.params.text },
+  db.sequelize.query(query, { replacements: { text: '%%' + req.params.text + '%%'},
+                              model: db.User,
                               type: db.sequelize.QueryTypes.SELECT
                             })
   .then(function(users) {
