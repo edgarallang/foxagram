@@ -86,24 +86,24 @@ router.get('/upload_test', function (req, res, next) {
 });
 
 router.post('/like', ensureAuthenticated, function(req, res, next){
-  db.Likes.findOrCreate({
+  db.Like.find({
     where: { 
-      photo_id: req.photo_id, 
+      photo_id: req.body.photo_id, 
       user_id: req.user_id 
     },
     defaults: { // set the default properties if it doesn't exist
-      photo_id: req.photo_id,
+      photo_id: req.body.photo_id,
       user_id: req.user_id
     }
-
-  }).then(function(result) {
-      var  created = result[1]; // boolean stating if it was created or not
-      if (created) {
-        res.json({message:  'Photo liked' });
-      }else{
-        res.json({message:  'Photo unliked' });
-      }
-    });
+  }).then( function(like, created){
+      res.json({message:  'Created '+created });
+  })
+   /* .spread( function(like, created) {
+        console.log(like.get({
+          plain: true
+        }))
+        res.json({message:  'Created '+created });
+  });*/
 });
 
 router.put('/comment/delete', ensureAuthenticated, function (req, res, next) {
