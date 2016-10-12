@@ -80,18 +80,23 @@ router.post('/:userId/follow', ensureAuthenticated, function(req, res) {
   });
 });
 
-router.get('/get/profile', ensureAuthenticated, function(req, res){
+router.get('/get/profile/:userId', ensureAuthenticated, function(req, res){
   db.Photo.findAll({
-    where: { user_id: req.user_id }
+    where: { user_id: req.params.userId },
+    order: 'date DESC'
   }).then( function (photos){
     db.Follower.findAll({
       attributes: [
               [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."follower_id" = ' + req.user_id +')'), 'following'],
               [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."user_id" = '+ req.user_id +')'), 'followers']
           ],
-      where: { user_id: req.user_id }
+      where: { user_id: req.params.userId  }
     }).then( function (profile){
-      res.json({ profile: profile, photos: photos });
+      db.User.findOne({
+        where: { id: req.params.userId }
+      }).then( function (user){
+        res.json({ profile: profile, photos: photos, user_info: user });
+      });
     });
   });
 });
@@ -111,3 +116,4 @@ router.get('/search/:text', ensureAuthenticated, function(req, res, next) {
   });
 
 });
+

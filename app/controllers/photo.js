@@ -3,18 +3,29 @@ var express = require('express'),
   db = require('../models'),
   multer = require('multer'),
   mkdirp = require('mkdirp');
-
+  
 
 module.exports = function (app) {
   app.use('/photo', router);
 };
+
+router.get('/by/id/:photoId', function(req, res){
+	db.Photo.findOne({
+		where: { id: req.params.photoId }
+	}).then(function (photo){
+		if(!photo){
+			res.json({message: 'photo doesnt exist' });
+		}else{
+			res.json({data: photo});
+		}
+	});
+});
 
 /*
  |--------------------------------------------------------------------------
  | Decode JSON Web Token
  |--------------------------------------------------------------------------
  */
-
 function ensureAuthenticated(req, res, next) {
   if (!req.header('Authorization')) {
     return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
@@ -31,19 +42,7 @@ function ensureAuthenticated(req, res, next) {
   next();
 }
 
-router.get('/by/id/:photoId', function(req, res){
-  db.Photo.findOne({
-    where: { id: req.params.photoId }
-  }).then(function (photo){
-    if(!photo){
-      res.json({message: 'photo doesnt exist' });
-    } else {
-      res.json({data: photo});
-    }
-  });
-});
-
-router.post('/upload', ensureAuthenticated, function (req, res, next) {
+router.post('/upload', ensureAuthenticated,function (req, res, next) {
   var storage = multer.diskStorage({
     destination: function (req, file, callback) {
       mkdirp('./photos/' + req.user_id, function (err) {
@@ -62,10 +61,10 @@ router.post('/upload', ensureAuthenticated, function (req, res, next) {
 
   var upload = multer({ storage : storage, dest: 'photos/' }).single('photo');
 
-  upload(req ,res , function(err) {
+	upload(req ,res , function(err) {
         if(err) {
           res.json({message: 'Error uploading photo.'});
-        } else {
+        }else{
           db.Photo.create({
             user_id: req.user_id,
             title: req.body.title,
@@ -74,7 +73,7 @@ router.post('/upload', ensureAuthenticated, function (req, res, next) {
           }).then(function (photo){
             res.json({message:  'Photo uploaded' });
           });
-        }
+		    }
     });
 });
 
@@ -86,27 +85,25 @@ router.get('/upload_test', function (req, res, next) {
   });
 });
 
-router.get('/:photoId/comment/get', ensureAuthenticated, function (req, res, next) {
-  db.Comment.findAll({
-    where: { photo_id: req.params.photoId },
-    include: [{ model: db.Photo,
-                required: true
-              }, { model: db.User,
-                   required: true
-              }]
-  }).then(function (comments) {
-    res.json({ data: comments });
-  });
-});
+router.post('/like', ensureAuthenticated, function(req, res, next){
+  db.Likes.findOrCreate({
+    where: { 
+      photo_id: req.photo_id, 
+      user_id: req.user_id 
+    },
+    defaults: { // set the default properties if it doesn't exist
+      photo_id: req.photo_id,
+      user_id: req.user_id
+    }
 
-router.post('/comment/new', ensureAuthenticated, function (req, res, next) {
-  db.Comment.create({
-    user_id: req.user_id,
-    photo_id: req.body.photo_id,
-    comment_body: req.body.comment_body
-  }).then(function (comment) {
-    res.json(comment);
-  });
+  }).then(function(result) {
+      var  created = result[1]; // boolean stating if it was created or not
+      if (created) {
+        res.json({message:  'Photo liked' });
+      }else{
+        res.json({message:  'Photo unliked' });
+      }
+    });
 });
 
 router.put('/comment/delete', ensureAuthenticated, function (req, res, next) {
