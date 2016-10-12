@@ -108,3 +108,11 @@ router.post('/comment/new', ensureAuthenticated, function (req, res, next) {
     res.json(comment);
   });
 });
+
+router.put('/comment/delete', ensureAuthenticated, function (req, res, next) {
+  db.Comment.destroy({
+    where: { id: req.body.comment_id}
+  }).then(function (comment) {
+    res.json(comment);
+  });
+});
