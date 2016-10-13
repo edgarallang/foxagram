@@ -86,24 +86,38 @@ router.get('/upload_test', function (req, res, next) {
 });
 
 router.post('/like', ensureAuthenticated, function(req, res, next){
-  db.Likes.findOrCreate({
+  db.Like.findOrCreate({
     where: {
-      photo_id: req.photo_id,
+      photo_id: req.body.photo_id,
       user_id: req.user_id
     },
     defaults: { // set the default properties if it doesn't exist
-      photo_id: req.photo_id,
+      photo_id: req.body.photo_id,
       user_id: req.user_id
     }
-
-  }).then(function(result) {
-      var  created = result[1]; // boolean stating if it was created or not
-      if (created) {
-        res.json({message:  'Photo liked' });
+  }).spread( function(like, isCreated){
+      if(isCreated == false){
+        db.Like.destroy({ where: { id: like.id } }).then(function(like){
+          res.json({ loved: Boolean(isCreated) });
+        })
       }else{
-        res.json({message:  'Photo unliked' });
+        res.json({ loved: Boolean(isCreated) });
       }
-    });
+  })
+   /* .spread( function(like, created) {
+        console.log(like.get({
+          plain: true
+        }))
+        res.json({message:  'Created '+created });
+  });*/
+});
+
+router.get('/:photoId/loves/get', ensureAuthenticated, function (req, res, next){
+  db.Like.findAll({
+    where: { photo_id: req.params.photoId}
+  }).then(function (likes){
+    res.json({ data: likes })
+  });
 });
 
 router.get('/:photoId/comment/get', ensureAuthenticated, function (req, res, next) {
