@@ -83,12 +83,20 @@ router.post('/:userId/follow', ensureAuthenticated, function(req, res) {
 router.get('/get/profile/:userId', ensureAuthenticated, function(req, res){
   db.Photo.findAll({
     where: { user_id: req.params.userId },
+    attributes: [
+                  'id',
+                  'file_name',
+                  'user_id',
+                  'title',
+                  [sequelize.literal('(SELECT COUNT(*) FROM "Likes" WHERE "Likes"."photo_id" = "Photo"."id")::int'), 'loves'],
+                  [sequelize.literal('(SELECT EXISTS(SELECT * FROM "Likes" WHERE "Likes"."user_id" = ' + req.user_id + ' AND "Likes"."photo_id" = "Photo"."id" ) AS "loved")'), 'loved']
+                ],
     order: 'date DESC'
   }).then( function (photos){
     db.Follower.findAll({
       attributes: [
-              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."follower_id" = ' + req.user_id +')'), 'following'],
-              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."user_id" = '+ req.user_id +')'), 'followers']
+              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."follower_id" = ' + req.user_id +')::int'), 'following'],
+              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."user_id" = '+ req.user_id +')::int'), 'followers']
           ],
       where: { user_id: req.params.userId  }
     }).then( function (profile){

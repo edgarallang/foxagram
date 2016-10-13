@@ -3,7 +3,7 @@ var express = require('express'),
   db = require('../models'),
   multer = require('multer'),
   mkdirp = require('mkdirp');
-  
+
 
 module.exports = function (app) {
   app.use('/photo', router);
@@ -86,17 +86,23 @@ router.get('/upload_test', function (req, res, next) {
 });
 
 router.post('/like', ensureAuthenticated, function(req, res, next){
-  db.Like.find({
-    where: { 
-      photo_id: req.body.photo_id, 
-      user_id: req.user_id 
+  db.Like.findOrCreate({
+    where: {
+      photo_id: req.body.photo_id,
+      user_id: req.user_id
     },
     defaults: { // set the default properties if it doesn't exist
       photo_id: req.body.photo_id,
       user_id: req.user_id
     }
-  }).then( function(like, created){
-      res.json({message:  'Created '+created });
+  }).spread( function(like, isCreated){
+      if(isCreated == false){
+        db.Like.destroy({ where: { id: like.id } }).then(function(like){
+          res.json({ loved: Boolean(isCreated) });
+        })
+      }else{
+        res.json({ loved: Boolean(isCreated) });
+      }
   })
    /* .spread( function(like, created) {
         console.log(like.get({
@@ -104,6 +110,37 @@ router.post('/like', ensureAuthenticated, function(req, res, next){
         }))
         res.json({message:  'Created '+created });
   });*/
+});
+
+router.get('/:photoId/loves/get', ensureAuthenticated, function (req, res, next){
+  db.Like.findAll({
+    where: { photo_id: req.params.photoId}
+  }).then(function (likes){
+    res.json({ data: likes })
+  });
+});
+
+router.get('/:photoId/comment/get', ensureAuthenticated, function (req, res, next) {
+  db.Comment.findAll({
+    where: { photo_id: req.params.photoId },
+    include: [{ model: db.Photo,
+                required: true
+              }, { model: db.User,
+                   required: true
+              }]
+  }).then(function (comments) {
+    res.json({ data: comments });
+  });
+});
+
+router.post('/comment/new', ensureAuthenticated, function (req, res, next) {
+  db.Comment.create({
+    user_id: req.user_id,
+    photo_id: req.body.photo_id,
+    comment_body: req.body.comment_body
+  }).then(function (comment) {
+    res.json(comment);
+  });
 });
 
 router.put('/comment/delete', ensureAuthenticated, function (req, res, next) {
