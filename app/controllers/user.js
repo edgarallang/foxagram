@@ -68,15 +68,20 @@ router.post('/auth/login', function(req, res){
 });
 
 router.post('/follow/set', ensureAuthenticated, function(req, res, next) {
-  Follower.findOrCreate({
-    where: { follower_id: req.user_id },
-    defaults: { user_id: req.body.user_id }
-  })
-    .spread(function(user, created) {
-      console.log(user.get({
-        plain: true
-      }));
-      console.log(created);
+  console.log(req.user_id, req.body.user_id);
+  db.Follower.findOrCreate({
+    where: { follower_id: req.user_id, user_id: req.body.user_id },
+    defaults: { follower_id: req.user_id, user_id: req.body.user_id }
+  }).spread( function(follow, isCreated) {
+      if (isCreated === false) {
+        db.Follower.destroy({
+          where: { id: follow.id }
+        }).then(function(follow) {
+          res.json({ data: 'unfollow' });
+        });
+      } else {
+        res.json({ data: 'following' });
+      }
   });
 });
 
@@ -95,8 +100,9 @@ router.get('/get/profile/:userId', ensureAuthenticated, function(req, res){
   }).then( function (photos){
     db.Follower.findAll({
       attributes: [
-              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."follower_id" = ' + req.user_id +')::int'), 'following'],
-              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."user_id" = '+ req.user_id +')::int'), 'followers']
+              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."follower_id" = ' + req.user_id +')::int'), 'followings'],
+              [sequelize.literal('(SELECT COUNT(*) FROM "Followers" WHERE "Followers"."user_id" = '+ req.user_id +')::int'), 'followers'],
+              [sequelize.literal('(SELECT EXISTS(SELECT * FROM "Followers" WHERE "Followers"."user_id" = ' + req.params.userId + ' AND "Followers"."follower_id" = ' + req.user_id + ') AS "following")'), 'following']
           ],
       where: { user_id: req.params.userId  }
     }).then( function (profile){
