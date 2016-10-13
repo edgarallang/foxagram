@@ -67,10 +67,10 @@ router.post('/auth/login', function(req, res){
   });
 });
 
-router.post('/:userId/follow', ensureAuthenticated, function(req, res) {
+router.post('/follow/set', ensureAuthenticated, function(req, res, next) {
   Follower.findOrCreate({
     where: { follower_id: req.user_id },
-    defaults: { user_id: req.params.userId }
+    defaults: { user_id: req.body.user_id }
   })
     .spread(function(user, created) {
       console.log(user.get({
@@ -116,4 +116,3 @@ router.get('/search/:text', ensureAuthenticated, function(req, res, next) {
   });
 
 });
-
