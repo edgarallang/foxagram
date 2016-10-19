@@ -61,7 +61,7 @@ router.post('/upload', ensureAuthenticated,function (req, res, next) {
 
   var upload = multer({ storage : storage, dest: 'photos/' }).single('photo');
 
-	upload(req ,res , function(err) {
+  upload(req, res, function(err) {
         if(err) {
           res.json({message: 'Error uploading photo.'});
         }else{
@@ -73,7 +73,7 @@ router.post('/upload', ensureAuthenticated,function (req, res, next) {
           }).then(function (photo){
             res.json({message:  'Photo uploaded' });
           });
-		    }
+        }
     });
 });
 
@@ -96,14 +96,14 @@ router.post('/like', ensureAuthenticated, function(req, res, next){
       user_id: req.user_id
     }
   }).spread( function(like, isCreated){
-      if(isCreated == false){
+      if(isCreated === false){
         db.Like.destroy({ where: { id: like.id } }).then(function(like){
           res.json({ loved: Boolean(isCreated) });
-        })
+        });
       }else{
         res.json({ loved: Boolean(isCreated) });
       }
-  })
+  });
    /* .spread( function(like, created) {
         console.log(like.get({
           plain: true
@@ -116,7 +116,7 @@ router.get('/:photoId/loves/get', ensureAuthenticated, function (req, res, next)
   db.Like.findAll({
     where: { photo_id: req.params.photoId}
   }).then(function (likes){
-    res.json({ data: likes })
+    res.json({ data: likes });
   });
 });
 
