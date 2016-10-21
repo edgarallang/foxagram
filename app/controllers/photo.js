@@ -59,7 +59,7 @@ router.post('/upload', ensureAuthenticated,function (req, res, next) {
     }
   });
 
-  var upload = multer({ storage : storage, dest: 'photos/' }).single('photo');
+  var upload = multer({ storage : storage, dest: '../photos/' }).single('photo');
 
   upload(req, res, function(err) {
         if(err) {
