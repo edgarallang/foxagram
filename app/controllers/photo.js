@@ -10,15 +10,15 @@ module.exports = function (app) {
 };
 
 router.get('/by/id/:photoId', function(req, res){
-	db.Photo.findOne({
-		where: { id: req.params.photoId }
-	}).then(function (photo){
-		if(!photo){
-			res.json({message: 'photo doesnt exist' });
-		}else{
-			res.json({data: photo});
-		}
-	});
+  db.Photo.findOne({
+    where: { id: req.params.photoId }
+    }).then(function (photo){
+    if(!photo){
+      res.json({message: 'photo doesnt exist' });
+    } else {
+      res.json({data: photo});
+    }
+  });
 });
 
 /*
@@ -45,9 +45,9 @@ function ensureAuthenticated(req, res, next) {
 router.post('/upload', ensureAuthenticated,function (req, res, next) {
   var storage = multer.diskStorage({
     destination: function (req, file, callback) {
-      mkdirp('./photos/' + req.user_id, function (err) {
+      mkdirp('../photos/' + req.user_id, function (err) {
         if (!err){
-          callback(null, './photos/' + req.user_id);
+          callback(null, '../photos/' + req.user_id);
         }else{
           console.log("ERROR");
 
