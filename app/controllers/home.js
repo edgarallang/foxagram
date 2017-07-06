@@ -111,3 +111,19 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
     // We don't need spread here, since only the results will be returned for select queries
   });
 });
+
+router.get('/tweets', function (req, res) {
+  var query = 'SELECT DISTINCT ON (p.id) t.user_id, names, user_image, ' +
+                      't.id as "tweet_id" ' +
+                'FROM "Tweets" AS t ' +
+                'INNER JOIN "Users" AS u ON u.id = t.user_id ' +
+                'ORDER BY t.id DESC';
+
+  db.sequelize.query(query, { replacements: { user_id: req.user_id },
+                              type: db.sequelize.QueryTypes.SELECT
+                            })
+  .then(function(users) {
+    res.json(users);
+    // We don't need spread here, since only the results will be returned for select queries
+  });
+});

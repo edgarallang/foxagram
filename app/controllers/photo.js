@@ -42,7 +42,7 @@ function ensureAuthenticated(req, res, next) {
   next();
 }
 
-router.post('/upload', ensureAuthenticated,function (req, res, next) {
+router.post('/upload', ensureAuthenticated, function (req, res, next) {
   var storage = multer.diskStorage({
     destination: function (req, file, callback) {
       mkdirp('../photos/' + req.user_id, function (err) {

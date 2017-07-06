@@ -62,7 +62,7 @@ router.post('/auth/login', function(req, res){
     if (!user) {
       return res.status(401).send({message: 'Invalid facebook id'});
     } else {
-      res.json({token: createJWT(user)});
+      res.json({ token: createJWT(user) });
     }
   });
 });
