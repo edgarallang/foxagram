@@ -114,7 +114,7 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
 
 router.get('/tweets', function (req, res) {
   var query = 'SELECT DISTINCT ON (t.id) t.user_id, names, user_image, ' +
-                      't.id as "tweet_id" ' +
+                      't.id as "tweet_id", t.* ' +
                 'FROM "Tweets" AS t ' +
                 'INNER JOIN "Users" AS u ON u.id = t.user_id ' +
                 'ORDER BY t.id DESC';
